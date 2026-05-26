@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vic 的信用卡回饋查詢</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-inner">
+        <h1>💳 信用卡回饋查詢</h1>
+        <p class="last-updated">資料更新於 <span id="lastUpdated">-</span></p>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- 查詢區 -->
+      <section class="search-section">
+        <div class="search-card">
+          <h2>我要刷哪張卡？</h2>
+
+          <div class="input-group">
+            <label for="categorySelect">選擇消費類別</label>
+            <select id="categorySelect">
+              <option value="">— 請選擇 —</option>
+            </select>
+          </div>
+
+          <div class="divider-text">或</div>
+
+          <div class="input-group">
+            <label for="textInput">直接描述消費情境</label>
+            <input type="text" id="textInput" placeholder="例如：我要在 Uber Eats 點餐" autocomplete="off">
+            <div id="textHint" class="text-hint"></div>
+          </div>
+
+          <div class="input-group amount-group">
+            <label for="amountInput">消費金額（選填，用來估算回饋）</label>
+            <div class="amount-input-wrap">
+              <span class="currency">NT$</span>
+              <input type="number" id="amountInput" placeholder="1000" min="0">
+            </div>
+          </div>
+
+          <button id="searchBtn" class="search-btn">查詢最優卡片</button>
+        </div>
+      </section>
+
+      <!-- 新增信用卡 -->
+      <section class="add-card-section">
+        <button id="toggleAddCardBtn" class="secondary-btn" type="button">＋ 新增信用卡</button>
+
+        <div id="addCardPanel" class="add-card-panel" style="display:none">
+          <h2>新增信用卡</h2>
+
+          <div class="input-group">
+            <label for="newCardName">卡片名稱</label>
+            <input type="text" id="newCardName" autocomplete="off">
+          </div>
+
+          <div class="input-group">
+            <label for="newCardBank">銀行名稱</label>
+            <input type="text" id="newCardBank" autocomplete="off">
+          </div>
+
+          <div class="form-actions">
+            <button id="saveNewCardBtn" class="search-btn" type="button">送出新增需求</button>
+            <button id="cancelAddCardBtn" class="reset-btn" type="button">取消</button>
+          </div>
+        </div>
+
+        <div id="customCardsList" class="custom-cards-list"></div>
+      </section>
+
+      <!-- 結果區（預設隱藏） -->
+      <section class="results-section" id="resultsSection" style="display:none">
+        <!-- 建議刷這張 -->
+        <div class="top-recommendation" id="topCard">
+          <div class="recommend-badge">建議刷這張</div>
+          <div class="card-content" id="topCardContent"></div>
+        </div>
+
+        <!-- 其他有回饋的卡 -->
+        <div class="other-cards-section" id="otherCardsSection" style="display:none">
+          <h3>你的卡</h3>
+          <div id="otherCardsList"></div>
+        </div>
+
+        <!-- 比較表 -->
+        <div class="comparison-section">
+          <h3>詳細的卡片比較整理如下：</h3>
+          <div class="table-scroll">
+            <table class="comparison-table" id="comparisonTable">
+              <thead id="comparisonHead"></thead>
+              <tbody id="comparisonBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 結論 -->
+        <div class="conclusion-section">
+          <p id="conclusionText"></p>
+        </div>
+
+        <!-- 重新查詢 -->
+        <button class="reset-btn" id="resetBtn">重新查詢</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="cards-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
