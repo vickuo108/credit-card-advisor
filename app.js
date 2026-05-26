@@ -115,11 +115,18 @@ function searchCards(categoryId) {
   getAllCards().forEach(card => {
     const reward = card.rewards[categoryId];
     if (reward && reward.rate > 0) {
-      results.push({ card, reward, rate: reward.rate, requiresAction: rewardRequiresAction(reward) });
+      results.push({
+        card,
+        reward,
+        rate: reward.rate,
+        newCustomerOnly: rewardIsNewCustomerOnly(reward),
+        requiresAction: rewardRequiresAction(reward),
+      });
     }
   });
-  // 不用登錄/領券/切換的回饋優先；同組內再按回饋率與上限排序。
+  // 舊戶/一般適用優先，再優先不用登錄/領券/切換的回饋；同組內按回饋率與上限排序。
   results.sort((a, b) => {
+    if (a.newCustomerOnly !== b.newCustomerOnly) return a.newCustomerOnly ? 1 : -1;
     if (a.requiresAction !== b.requiresAction) return a.requiresAction ? 1 : -1;
     if (b.rate !== a.rate) return b.rate - a.rate;
     const capA = a.reward.cap === null ? Infinity : a.reward.cap;
@@ -338,6 +345,7 @@ function generateConclusion(results, cat, amount) {
   const catLabel = escapeHtml(cat.label);
   const topRewardType = escapeHtml(top.card.rewardType);
   const actionOption = results.find(r => r.requiresAction && r.rate > top.rate);
+  const newCustomerOption = results.find(r => r.newCustomerOnly && r.rate > top.rate);
 
   let text = `<strong>結論：</strong>在「${cat.icon} ${catLabel}」的消費情境下，`;
 
@@ -364,6 +372,10 @@ function generateConclusion(results, cat, amount) {
 
   if (actionOption) {
     text += `若你願意先完成登錄、領券或方案切換，${escapeHtml(actionOption.card.name)} 可到 ${formatRate(actionOption.rate)}，但我已優先推薦不用額外操作的卡。`;
+  }
+
+  if (newCustomerOption) {
+    text += `${escapeHtml(newCustomerOption.card.name)} 有 ${formatRate(newCustomerOption.rate)} 的新戶/新卡友限定回饋；排序時已先以舊戶或一般適用回饋為主。`;
   }
 
   if (amount && results.length > 1) {
@@ -494,6 +506,11 @@ function calcReward(amount, reward) {
 function rewardRequiresAction(reward) {
   const note = reward.note || '';
   return /需|登錄|領券|切換|限量|活動|達檻|任務|踩點|每月|每季|每波|額滿/.test(note);
+}
+
+function rewardIsNewCustomerOnly(reward) {
+  const note = reward.note || '';
+  return /新戶|新卡友|新申辦|新卡|首刷|首次申辦|限新戶|限新卡/.test(note) && !/舊戶|不限新舊戶|新舊戶/.test(note);
 }
 
 function normalizeUrl(url) {

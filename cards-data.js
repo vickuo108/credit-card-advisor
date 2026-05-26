@@ -369,8 +369,9 @@ const CARDS = [
 //    ],
 //    rewards: {
 //      // 有特定回饋的類別才填；沒有的省略（不出現在比較表）
-//      food_delivery:    { rate: 0.03,  cap: null,  note: '說明（選填）' },
-//      restaurant:       { rate: 0.01,  cap: 500,   note: '月回饋上限 NT$500' },
+//      // note 需寫明是否限新戶/新卡友；若舊戶也適用，請寫「舊戶適用」或「不限新舊戶」。
+//      food_delivery:    { rate: 0.03,  cap: null,  note: '舊戶適用；說明（選填）' },
+//      restaurant:       { rate: 0.01,  cap: 500,   note: '不限新舊戶；月回饋上限 NT$500' },
 //      overseas:         { rate: 0.05,  cap: null },
 //    }
 //  },
