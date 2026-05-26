@@ -115,11 +115,12 @@ function searchCards(categoryId) {
   getAllCards().forEach(card => {
     const reward = card.rewards[categoryId];
     if (reward && reward.rate > 0) {
-      results.push({ card, reward, rate: reward.rate });
+      results.push({ card, reward, rate: reward.rate, requiresAction: rewardRequiresAction(reward) });
     }
   });
-  // 先按回饋率降序，同率則「無上限」優先
+  // 不用登錄/領券/切換的回饋優先；同組內再按回饋率與上限排序。
   results.sort((a, b) => {
+    if (a.requiresAction !== b.requiresAction) return a.requiresAction ? 1 : -1;
     if (b.rate !== a.rate) return b.rate - a.rate;
     const capA = a.reward.cap === null ? Infinity : a.reward.cap;
     const capB = b.reward.cap === null ? Infinity : b.reward.cap;
@@ -336,6 +337,7 @@ function generateConclusion(results, cat, amount) {
   const topName = escapeHtml(top.card.name);
   const catLabel = escapeHtml(cat.label);
   const topRewardType = escapeHtml(top.card.rewardType);
+  const actionOption = results.find(r => r.requiresAction && r.rate > top.rate);
 
   let text = `<strong>結論：</strong>在「${cat.icon} ${catLabel}」的消費情境下，`;
 
@@ -358,6 +360,10 @@ function generateConclusion(results, cat, amount) {
 
   if (top.reward.note) {
     text += `使用 ${topName} 請注意：${escapeHtml(top.reward.note)}。`;
+  }
+
+  if (actionOption) {
+    text += `若你願意先完成登錄、領券或方案切換，${escapeHtml(actionOption.card.name)} 可到 ${formatRate(actionOption.rate)}，但我已優先推薦不用額外操作的卡。`;
   }
 
   if (amount && results.length > 1) {
@@ -483,6 +489,11 @@ function formatRate(rate) {
 function calcReward(amount, reward) {
   const raw = amount * reward.rate;
   return reward.cap ? Math.min(raw, reward.cap) : raw;
+}
+
+function rewardRequiresAction(reward) {
+  const note = reward.note || '';
+  return /需|登錄|領券|切換|限量|活動|達檻|任務|踩點|每月|每季|每波|額滿/.test(note);
 }
 
 function normalizeUrl(url) {
