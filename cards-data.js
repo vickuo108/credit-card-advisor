@@ -272,7 +272,7 @@ const CARDS = [
       '2026/5-8 指定行動支付最高 15%（月上限 NT$1,500）',
     ],
     rewards: {
-      overseas:       { rate: 0.05, cap: null, note: '日韓泰、新加坡、美洲、歐洲實體消費' },
+      overseas:       { rate: 0.05, baseRate: 0.01, bonusRate: 0.04, bonusCap: 600, cap: null, note: '舊戶適用；日韓泰、新加坡、美洲、歐洲實體消費，基本國外1%無上限 + 指定地區4%加碼每期帳單上限600點' },
       eco_charging:   { rate: 0.10, cap: 300,  note: 'Tesla、Gogoro，月加碼上限 300 點' },
       mobile_payment: { rate: 0.15, cap: 1500, note: '限時活動 2026/5-8，需每月分別至星展Card+登錄且一般消費達檻；5月5/4 15:00-5/31、6月6/1 15:00-6/30、7月7/1 15:00-7/31、8月8/3 15:00-8/31；依達檻排序，每月最高 NT$1,500' },
       food_delivery:  { rate: 0.01, cap: null, note: '一般消費無上限' },

@@ -229,7 +229,7 @@ function ensureResultsLayout() {
 function renderTopCard(result, cat, amount) {
   const { card, reward } = result;
   const rateStr    = formatRate(reward.rate);
-  const capStr     = reward.cap ? `月上限 NT$${reward.cap.toLocaleString()}` : '無上限';
+  const capStr     = formatRewardCap(reward);
   const rewardAmt  = amount ? calcReward(amount, reward) : null;
   const cardName   = escapeHtml(card.name);
   const rewardType = escapeHtml(card.rewardType);
@@ -260,7 +260,7 @@ function renderTopCard(result, cat, amount) {
     </button>
     <div id="top-detail" class="detail-content">
       <div class="detail-section-title">推薦原因</div>
-      <p class="reason-text">在「${catLabel}」消費情境下，${cardName} 提供 ${rateStr} ${rewardType}回饋${reward.cap ? `（每月上限 NT$${reward.cap.toLocaleString()}）` : '，無月上限'}，為你手上所有卡中回饋最高的選擇。</p>
+      <p class="reason-text">在「${catLabel}」消費情境下，${cardName} 提供 ${rateStr} ${rewardType}回饋（${capStr}），為你手上所有卡中回饋最高的選擇。</p>
       <div class="detail-section-title">卡片特色</div>
       <ul class="features-list">
         ${card.features.map(f => `<li>${escapeHtml(f)}</li>`).join('')}
@@ -274,7 +274,7 @@ function renderTopCard(result, cat, amount) {
 function renderOtherCard(result, cat, amount, idx) {
   const { card, reward } = result;
   const rateStr   = formatRate(reward.rate);
-  const capStr    = reward.cap ? `月上限 NT$${reward.cap.toLocaleString()}` : '無上限';
+  const capStr    = formatRewardCap(reward);
   const rewardAmt = amount ? calcReward(amount, reward) : null;
   const detailId  = `other-detail-${idx}`;
   const cardName  = escapeHtml(card.name);
@@ -331,7 +331,7 @@ function renderComparisonTable(results, cat) {
   // Row 2: 月上限
   const capRow = `<tr>
     <td class="row-label">每月上限</td>
-    ${results.map(r => `<td>${r.reward.cap ? `NT$${r.reward.cap.toLocaleString()}` : '無上限'}</td>`).join('')}
+    ${results.map(r => `<td>${escapeHtml(formatRewardCap(r.reward))}</td>`).join('')}
   </tr>`;
 
   body.innerHTML = rateRow + capRow;
@@ -357,7 +357,7 @@ function generateConclusion(results, cat, amount) {
     const secondRewardType = escapeHtml(second.card.rewardType);
     if (top.rate === second.rate) {
       text += `<strong>${topName}</strong> 與 <strong>${secondName}</strong> 並列最高 ${topRate} 回饋。`;
-      if (top.reward.cap === null && second.reward.cap !== null) {
+      if (isRewardUncapped(top.reward) && !isRewardUncapped(second.reward)) {
         text += `${topName} 無月上限，彈性較大；`;
       }
     } else {
@@ -499,8 +499,24 @@ function formatRate(rate) {
 }
 
 function calcReward(amount, reward) {
+  if (typeof reward.baseRate === 'number' && typeof reward.bonusRate === 'number') {
+    const base = amount * reward.baseRate;
+    const bonus = amount * reward.bonusRate;
+    return base + (reward.bonusCap ? Math.min(bonus, reward.bonusCap) : bonus);
+  }
   const raw = amount * reward.rate;
   return reward.cap ? Math.min(raw, reward.cap) : raw;
+}
+
+function formatRewardCap(reward) {
+  if (reward.bonusCap && reward.baseRate) {
+    return `加碼上限 NT$${reward.bonusCap.toLocaleString()}（基本${formatRate(reward.baseRate)}無上限）`;
+  }
+  return reward.cap ? `月上限 NT$${reward.cap.toLocaleString()}` : '無上限';
+}
+
+function isRewardUncapped(reward) {
+  return !reward.cap && !reward.bonusCap;
 }
 
 function rewardRequiresAction(reward) {
