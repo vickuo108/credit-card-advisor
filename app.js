@@ -509,6 +509,7 @@ function calcReward(amount, reward) {
 }
 
 function formatRewardCap(reward) {
+  if (reward.capLabel) return reward.capLabel;
   if (reward.bonusCap && reward.baseRate) {
     return `加碼上限 NT$${reward.bonusCap.toLocaleString()}（基本${formatRate(reward.baseRate)}無上限）`;
   }
